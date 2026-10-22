@@ -46,14 +46,7 @@
       code, pre, .font-mono {
         font-family: 'JetBrains Mono', monospace;
       }
-      /* Custom map styling for dark mode */
-      .dark-map .leaflet-tile {
-        filter: brightness(0.7) invert(1) contrast(1.6) hue-rotate(200deg) saturate(0.4) brightness(0.85);
-      }
-      .satellite-map .leaflet-tile,
-      .street-map .leaflet-tile {
-        filter: none !important;
-      }
+      /* No CSS filter needed — dark mode uses native CartoDB dark tiles */
       .leaflet-popup-content-wrapper {
         background-color: #0f172a !important;
         color: #f8fafc !important;

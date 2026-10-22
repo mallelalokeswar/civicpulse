@@ -34,7 +34,7 @@ export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedSeverity, setSelectedSeverity] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
-  const [mapStyle, setMapStyle] = useState<'dark' | 'street' | 'satellite'>('dark');
+  const [mapStyle, setMapStyle] = useState<'dark' | 'street' | 'satellite'>('street');
   const tileLayerRef = useRef<L.TileLayer | null>(null);
 
   // Selected Ticket Drawer
@@ -74,19 +74,28 @@ export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({
     }
   }, []);
 
-  // Update Map Tile Layer & CSS filter when style changes
+  // Tile URL configs (all 100% free, no API key)
+  const tileConfigs: Record<string, { url: string; attribution: string }> = {
+    street: {
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    },
+    dark: {
+      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
+    },
+    satellite: {
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri'
+    }
+  };
+
+  // Update Map Tile Layer when style changes
   useEffect(() => {
     if (!tileLayerRef.current || !mapContainerRef.current) return;
 
-    mapContainerRef.current.className = `w-full h-full ${
-      mapStyle === 'dark' ? 'dark-map' : mapStyle === 'satellite' ? 'satellite-map' : 'street-map'
-    }`;
-
-    if (mapStyle === 'satellite') {
-      tileLayerRef.current.setUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
-    } else {
-      tileLayerRef.current.setUrl('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
-    }
+    const config = tileConfigs[mapStyle];
+    tileLayerRef.current.setUrl(config.url);
   }, [mapStyle]);
 
   // Update Markers when Filtered Tickets change
@@ -271,7 +280,7 @@ export const HazardHeatmap: React.FC<HazardHeatmapProps> = ({
       {/* Main Map Container & Slide-over Drawer */}
       <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl h-[680px]">
         {/* Leaflet Map Target */}
-        <div ref={mapContainerRef} className="w-full h-full dark-map" />
+        <div ref={mapContainerRef} className="w-full h-full" />
 
         {/* Floating Quick Action Overlay */}
         <div className="absolute top-4 left-4 z-[400] flex items-center gap-2">
